@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useCallback } from "react";
 
 import MoviesList from "./components/MoviesList";
 import "./App.css";
@@ -7,11 +7,12 @@ function App() {
   const [movies, setMovies] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState(null);
-  async function fetchHandler() {
+
+  const fetchHandler = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch("https://swapi.dev/api/film/"); //fetch functions is automatically set to get
+      const response = await fetch("https://swapi.dev/api/films/"); //fetch functions is automatically set to get
       if (!response.ok) {
         throw new Error("Something went wrong");
       }
@@ -32,7 +33,11 @@ function App() {
       setError(error.message);
       setIsLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    fetchHandler();
+  }, [fetchHandler]);
 
   return (
     <React.Fragment>
