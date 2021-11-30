@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback } from "react";
-
+import AddMovie from "./components/AddMovie";
 import MoviesList from "./components/MoviesList";
 import "./App.css";
 
@@ -12,21 +12,26 @@ function App() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch("https://swapi.dev/api/films/"); //fetch functions is automatically set to get
+      const response = await fetch(
+        "https://brawls-afc69-default-rtdb.firebaseio.com/movies.json"
+      ); //fetch functions is automatically set to get
       if (!response.ok) {
         throw new Error("Something went wrong");
       }
 
       const data = await response.json();
-      const transformedMovies = data.results.map((moviedata) => {
-        return {
-          id: moviedata.episode_id,
-          title: moviedata.title,
-          openingText: moviedata.opening_crawl,
-          releaseDate: moviedata.release_date,
-        };
-      });
-      setMovies(transformedMovies);
+      const loadedmovies = [];
+      for (const key in data) {
+        loadedmovies.push({
+          id: key,
+          title: data[key].title,
+          openingText: data[key].openingText,
+          releaseDate: data[key].releaseDate,
+        });
+      }
+
+      setMovies(loadedmovies);
+
       setIsLoading(false);
     } catch (error) {
       console.log(error);
@@ -39,8 +44,26 @@ function App() {
     fetchHandler();
   }, [fetchHandler]);
 
+  const addMovieHandler = async (movie) => {
+    const response = await fetch(
+      "https://brawls-afc69-default-rtdb.firebaseio.com/movies.json",
+      {
+        method: "POST",
+        body: JSON.stringify(movie),
+        headers: {
+          "Content-type": "application",
+        },
+      }
+    );
+    const data = response.json();
+    console.log(data);
+  };
+
   return (
     <React.Fragment>
+      <section>
+        <AddMovie onAddMovie={addMovieHandler} />
+      </section>
       <section>
         <button onClick={fetchHandler}>Fetch Movies</button>
       </section>
